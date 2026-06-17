@@ -53,17 +53,33 @@ def dos_from_nn(E_grid, de, model, X_mean, X_std):
     return rho
 
 
+def dos_numeric(E, epsilon, de):
+    rho = np.zeros(len(E))
+
+    for i, Ei in enumerate(E):
+        diff = Ei - epsilon
+        rho[i] = np.sum(de / (diff**2 + de**2))
+
+    rho = rho / len(epsilon)
+    rho = rho / np.trapezoid(rho, E)
+
+    return rho
+
+
 model, X_mean, X_std = load_dos_model("dos_net.pt")
 
 data = np.load("dos_dataset.npz")
 E_grid = data["E_grid"]
+epsilon = data["e"]
 
 de = 0.02
 
 rho_nn = dos_from_nn(E_grid, de, model, X_mean, X_std)
+rho_num = dos_numeric(E_grid, epsilon, de)
 
 plt.figure(figsize=(7, 5))
 plt.plot(E_grid, rho_nn, label="DOS from NN")
+plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
 plt.legend()
