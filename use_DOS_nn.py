@@ -49,7 +49,7 @@ def dos_from_nn(E_grid, de, a, b, model, X_mean, X_std):
     with torch.no_grad():
         y_log = model(X_tensor).numpy().flatten()
 
-    rho = y_log
+    rho = np.exp(y_log)
 
     return rho
 
