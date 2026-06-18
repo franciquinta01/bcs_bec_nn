@@ -23,7 +23,7 @@ def dos_single_E(Ei, epsilon, de):
     return np.sum(de / (diff**2 + de**2))
 
 
-def dos_parallel(E_grid, epsilon, de, n_jobs=8):
+def dos_parallel(E_grid, epsilon, de, n_jobs=15):
     rho = Parallel(n_jobs=n_jobs, backend="loky")(
         delayed(dos_single_E)(Ei, epsilon, de)
         for Ei in E_grid
@@ -37,7 +37,7 @@ def dos_parallel(E_grid, epsilon, de, n_jobs=8):
     return rho
 
 
-Ne = 100
+Ne = 200
 de = 1e-2
 kx = np.linspace(-np.pi,np.pi,Ne)
 ky = kx
@@ -55,7 +55,7 @@ A = []
 B = []
 
 for de in de_values:
-    dos_values = dos(E_grid, e, de)
+    dos_values = dos_parallel(E_grid, e, de)
 
     for E, rho in zip(E_grid, dos_values):
         A.append([E, de])

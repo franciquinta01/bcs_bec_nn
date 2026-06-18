@@ -83,7 +83,7 @@ plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
-plt.title(r"Comparison between numerical and NN for $de = {de}$")
+plt.title(fr"Comparison between numerical and NN for $de = {de}$")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -93,7 +93,7 @@ plt.savefig("images/DOS_nn.png",dpi=300)
 # Comparison with finer BZ
 #==============================================================
 
-Ne = 200
+Ne = 300
 kx = np.linspace(-np.pi,np.pi,Ne)
 ky = kx
 kz = kx
@@ -109,7 +109,7 @@ plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
-plt.title(r"Comparison between numerical and NN for $de = {de}$")
+plt.title(fr"Comparison between numerical and NN for $de = {de}$")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
