@@ -72,7 +72,7 @@ data = np.load("dos_dataset.npz")
 E_grid = data["E_grid"]
 epsilon = data["e"]
 
-de = 0.002
+de = 2e-4
 
 rho_nn = dos_from_nn(E_grid, de, model, X_mean, X_std)
 rho_num = dos_parallel(E_grid, epsilon, de)
@@ -83,7 +83,7 @@ plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
-plt.title(fr"Comparison between numerical and NN for $N_e = {Ne}$")
+plt.title(fr"Comparison between numerical and NN for $N_e = 200, de={de}$")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
@@ -109,7 +109,7 @@ plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
-plt.title(fr"Comparison between numerical and NN for $N_e = {Ne}$")
+plt.title(fr"Comparison between numerical and NN for $N_e = {Ne}, de={de}$")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
