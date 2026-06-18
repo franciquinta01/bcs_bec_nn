@@ -103,7 +103,7 @@ model = DOSNet().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 loss_fn = nn.MSELoss()
 
-epochs = 450
+epochs = 600
 
 train_losses = []
 val_losses = []
