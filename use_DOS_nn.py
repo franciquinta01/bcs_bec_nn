@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
-
+from dataset_DOS import epsilon_3D, dos_parallel
 
 class DOSNet(nn.Module):
     def __init__(self):
@@ -53,17 +53,17 @@ def dos_from_nn(E_grid, de, model, X_mean, X_std):
     return rho
 
 
-def dos_numeric(E, epsilon, de):
-    rho = np.zeros(len(E))
+#def dos_numeric(E, epsilon, de):
+#    rho = np.zeros(len(E))
 
-    for i, Ei in enumerate(E):
-        diff = Ei - epsilon
-        rho[i] = np.sum(de / (diff**2 + de**2))
+#    for i, Ei in enumerate(E):
+#        diff = Ei - epsilon
+#        rho[i] = np.sum(de / (diff**2 + de**2))
 
-    rho = rho / len(epsilon)
-    rho = rho / np.trapezoid(rho, E)
+#    rho = rho / len(epsilon)
+#    rho = rho / np.trapezoid(rho, E)
 
-    return rho
+#    return rho
 
 
 model, X_mean, X_std = load_dos_model("dos_net.pt")
@@ -75,7 +75,7 @@ epsilon = data["e"]
 de = 0.002
 
 rho_nn = dos_from_nn(E_grid, de, model, X_mean, X_std)
-rho_num = dos_numeric(E_grid, epsilon, de)
+rho_num = dos_parallel(E_grid, epsilon, de)
 
 plt.figure(figsize=(7, 5))
 #plt.plot(E_grid, rho_nn, label="DOS from NN")
@@ -83,7 +83,34 @@ plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
+plt.title(r"Comparison between numerical and NN for $de = {de}$")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("images/DOS_nn.png",dpi=300)
+
+#==============================================================
+# Comparison with finer BZ
+#==============================================================
+
+Ne = 200
+kx = np.linspace(-np.pi,np.pi,Ne)
+ky = kx
+kz = kx
+X,Y,Z = np.meshgrid(kx,ky,kz)
+
+e = epsilon_3D(X,Y,Z).ravel()
+
+rho_num = dos_parallel(E_grid, e, de)
+
+plt.figure(figsize=(7, 5))
+#plt.plot(E_grid, rho_nn, label="DOS from NN")
+plt.plot(E_grid, rho_num, label="Numeric DOS")
+plt.plot(E_grid, rho_nn, label="DOS from NN")
+plt.xlabel("E")
+plt.ylabel("DOS(E)")
+plt.title(r"Comparison between numerical and NN for $de = {de}$")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("images/DOS_nn_finer.png",dpi=300)

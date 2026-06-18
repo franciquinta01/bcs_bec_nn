@@ -1,4 +1,5 @@
 import numpy as np
+from joblib import Parallel, delayed
 
 def epsilon_3D(kx,ky,kz):
     en = -0.5*(np.cos(kx)+np.cos(ky)+np.cos(kz))
@@ -16,6 +17,24 @@ def dos(E, epsilon, de):
     dos = dos / np.trapz(dos, E)
 
     return dos
+
+def dos_single_E(Ei, epsilon, de):
+    diff = Ei - epsilon
+    return np.sum(de / (diff**2 + de**2))
+
+
+def dos_parallel(E_grid, epsilon, de, n_jobs=8):
+    rho = Parallel(n_jobs=n_jobs, backend="loky")(
+        delayed(dos_single_E)(Ei, epsilon, de)
+        for Ei in E_grid
+    )
+
+    rho = np.array(rho)
+
+    rho = rho / len(epsilon)
+    rho = rho / np.trapezoid(rho, E_grid)
+
+    return rho
 
 
 Ne = 100
