@@ -60,7 +60,7 @@ data = np.load("dos_dataset.npz")
 E_grid = data["E_grid"]
 epsilon = data["e"]
 
-de = 2e-4
+de = 2e-2
 a = 0.5
 b = 0.2
 
