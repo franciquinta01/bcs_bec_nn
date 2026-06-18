@@ -1,8 +1,20 @@
 import numpy as np
 from joblib import Parallel, delayed
 
-def epsilon_3D(kx,ky,kz):
-    en = -0.5*(np.cos(kx)+np.cos(ky)+np.cos(kz))
+n_jobs = 30
+
+def epsilon_3D(kx,ky,kz,a,b):
+    en = -0.5*(np.cos(kx)+a*np.cos(ky)+b*np.cos(kz))
+
+    return en
+
+def epsilon_3D_parallel(kx,ky,kz,a,b,n_jobs=n_jobs):
+    en = Parallel(n_jobs=n_jobs, backend="loky")(
+        delayed(epsilon_3D)(kx,ky,ai,b)
+        for ai in a
+    )
+
+    en = np.array(en)
 
     return en
 
@@ -23,7 +35,7 @@ def dos_single_E(Ei, epsilon, de):
     return np.sum(de / (diff**2 + de**2))
 
 
-def dos_parallel(E_grid, epsilon, de, n_jobs=15):
+def dos_parallel(E_grid, epsilon, de, n_jobs=n_jobs):
     rho = Parallel(n_jobs=n_jobs, backend="loky")(
         delayed(dos_single_E)(Ei, epsilon, de)
         for Ei in E_grid
@@ -45,22 +57,31 @@ if __name__ == "__main__":
     kz = kx
     X,Y,Z = np.meshgrid(kx,ky,kz)
 
-    e = epsilon_3D(X,Y,Z).ravel()
-    e_min = np.min(e)
-    e_max = np.max(e)
+    #e = epsilon_3D(X,Y,Z).ravel()
+    #e_min = np.min(e)
+    #e_max = np.max(e)
 
-    E_grid = np.linspace(e_min, e_max, 1000)
-    de_values = np.linspace(0.005, 0.1, 50)
+    #E_grid = np.linspace(e_min, e_max, 1000)
+    de_values = np.linspace(0.005, 0.1, 20)
+    a_values = np.linspace(0,1,5)
+    b_values = np.linspace(0,1,5)
 
     A = []
     B = []
 
-    for de in de_values:
-        dos_values = dos_parallel(E_grid, e, de)
+    for a in a_values:
+        for b in b_values:
+            e = epsilon_3D(X,Y,Z,a,b).ravel()
+            e_min = np.min(e)
+            e_max = np.max(e)
+            E_grid = np.linspace(e_min, e_max, 250)
 
-        for E, rho in zip(E_grid, dos_values):
-            A.append([E, de])
-            B.append([rho])
+            for de in de_values:
+                dos_values = dos_parallel(E_grid, e, de)
+
+                for E, rho in zip(E_grid, dos_values):
+                    A.append([E, de, a, b])
+                    B.append([rho])
 
     A = np.array(A)
     B = np.array(B)

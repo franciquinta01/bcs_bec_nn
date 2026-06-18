@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 data = np.load("dos_dataset.npz")
 
-X = data["A"]      # shape: (N_samples, 2) -> [E, de]
+X = data["A"]      # shape: (N_samples, 4) -> [E, de, a, b]
 Y = data["B"]      # shape: (N_samples, 1) -> [DOS(E)]
 
 print("X shape:", X.shape)
@@ -22,8 +22,8 @@ print("Y shape:", Y.shape)
 # 2. Prepare target: learn log(DOS), not DOS directly
 # ============================================================
 
-#eps_log = 1e-12
-Y_log = Y #np.log(Y + eps_log)
+eps_log = 1e-12
+Y_log = np.log(Y + eps_log)
 
 
 # ============================================================
@@ -58,13 +58,13 @@ train_set, val_set = random_split(dataset, [N_train, N_val])
 
 train_loader = DataLoader(
     train_set,
-    batch_size=512,
+    batch_size=1024,
     shuffle=True
 )
 
 val_loader = DataLoader(
     val_set,
-    batch_size=512,
+    batch_size=1024,
     shuffle=False
 )
 
@@ -78,7 +78,7 @@ class DOSNet(nn.Module):
         super().__init__()
 
         self.net = nn.Sequential(
-            nn.Linear(2, 128),
+            nn.Linear(4, 128),
             nn.Tanh(),
             nn.Linear(128, 128),
             nn.Tanh(),
@@ -103,7 +103,7 @@ model = DOSNet().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 loss_fn = nn.MSELoss()
 
-epochs = 600
+epochs = 300
 
 train_losses = []
 val_losses = []
@@ -167,7 +167,7 @@ torch.save(
         "model_state_dict": model.state_dict(),
         "X_mean": X_mean,
         "X_std": X_std,
-#        "eps_log": eps_log,
+        "eps_log": eps_log,
         "train_losses": train_losses,
         "val_losses": val_losses,
     },
@@ -183,7 +183,7 @@ plt.figure(figsize=(7, 5))
 plt.semilogy(train_losses, label="Train")
 plt.semilogy(val_losses, label="Validation")
 plt.xlabel("Epoch")
-plt.ylabel("MSE loss on DOS")
+plt.ylabel("MSE loss on log(DOS)")
 plt.legend()
 plt.grid(True)
 plt.savefig("images/loss_plot.png",dpi=300)
@@ -193,10 +193,12 @@ plt.savefig("images/loss_plot.png",dpi=300)
 # 11. Function to predict a full DOS curve
 # ============================================================
 
-def predict_dos(model, E_grid, de, X_mean, X_std, device):
+def predict_dos(model, E_grid, de, a, b, X_mean, X_std, device):
     X_plot = np.column_stack([
         E_grid,
-        np.full_like(E_grid, de)
+        np.full_like(E_grid, de),
+        np.full_like(E_grid, a),
+        np.full_like(E_grid, b)
     ])
 
     X_plot_norm = (X_plot - X_mean) / X_std
@@ -208,6 +210,6 @@ def predict_dos(model, E_grid, de, X_mean, X_std, device):
     with torch.no_grad():
         y_log = model(x_tensor).cpu().numpy().flatten()
 
-    rho = y_log
+    rho = np.exp(y_log)
 
     return rho
