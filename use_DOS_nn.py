@@ -65,8 +65,8 @@ data = np.load("dos_dataset.npz")
 E_grid = data["E_grid"]
 epsilon = data["e"]
 
-a = 0.97
-b = 0.42
+a = 0.970
+b = 0.420
 de = 0.0137
 
 rho_nn = dos_from_nn(E_grid, de, a, b, model, X_mean, X_std)

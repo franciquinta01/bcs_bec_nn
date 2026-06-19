@@ -1,7 +1,7 @@
 import numpy as np
 from joblib import Parallel, delayed
 
-n_jobs = 30
+n_jobs = 20
 
 def epsilon_3D(kx,ky,kz,a,b):
     en = -0.5*(np.cos(kx)+a*np.cos(ky)+b*np.cos(kz))
@@ -50,8 +50,8 @@ def dos_parallel(E_grid, epsilon, de, n_jobs=n_jobs):
 
 if __name__ == "__main__":
 
-    Ne = 200
-    de = 1e-2
+    Ne = 400
+    de = 1e-3
     kx = np.linspace(-np.pi,np.pi,Ne)
     ky = kx
     kz = kx
@@ -63,8 +63,8 @@ if __name__ == "__main__":
 
     #E_grid = np.linspace(e_min, e_max, 1000)
     de_values = np.linspace(0.005, 0.1, 20)
-    a_values = np.linspace(0,1,5)
-    b_values = np.linspace(0,1,5)
+    a_values = np.linspace(0,2,10)
+    b_values = np.linspace(0,2,10)
 
     A = []
     B = []
