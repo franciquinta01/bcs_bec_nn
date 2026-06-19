@@ -51,6 +51,11 @@ def dos_from_nn(E_grid, de, a, b, model, X_mean, X_std):
 
     rho = np.exp(y_log)
 
+    e_min = -0.5 * (1 + abs(a) + abs(b))
+    e_max =  0.5 * (1 + abs(a) + abs(b))
+
+    rho[(E_grid < e_min) | (E_grid > e_max)] = 0.0
+
     return rho
 
 
@@ -60,9 +65,9 @@ data = np.load("dos_dataset.npz")
 E_grid = data["E_grid"]
 epsilon = data["e"]
 
-de = 2e-2
-a = 0.5
-b = 0.2
+a = 0.97
+b = 0.42
+de = 0.0137
 
 rho_nn = dos_from_nn(E_grid, de, a, b, model, X_mean, X_std)
 
@@ -77,13 +82,24 @@ e = epsilon_3D(X,Y,Z,a,b).ravel()
 rho_num = dos_parallel(E_grid, e, de)
 
 plt.figure(figsize=(7, 5))
-#plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
 plt.title(fr"Comparison between numerical and NN for $N_k = 200, de={de}$")
 plt.legend()
+plt.text(
+    0.98, 0.95,
+    f"a = {a:.3f}\nb = {b:.3f}",
+    transform=plt.gca().transAxes,
+    ha="right",
+    va="top",
+    bbox=dict(
+        boxstyle="round",
+        facecolor="white",
+        alpha=0.8
+    )
+)
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("images/DOS_nn.png",dpi=300)
@@ -103,13 +119,24 @@ e = epsilon_3D(X,Y,Z,a,b).ravel()
 rho_num = dos_parallel(E_grid, e, de)
 
 plt.figure(figsize=(7, 5))
-#plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.plot(E_grid, rho_num, label="Numeric DOS")
 plt.plot(E_grid, rho_nn, label="DOS from NN")
 plt.xlabel("E")
 plt.ylabel("DOS(E)")
 plt.title(fr"Comparison between numerical and NN for $N_k = {Ne}, de={de}$")
 plt.legend()
+plt.text(
+    0.98, 0.95,
+    f"a = {a:.3f}\nb = {b:.3f}",
+    transform=plt.gca().transAxes,
+    ha="right",
+    va="top",
+    bbox=dict(
+        boxstyle="round",
+        facecolor="white",
+        alpha=0.8
+    )
+)
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("images/DOS_nn_finer.png",dpi=300)
