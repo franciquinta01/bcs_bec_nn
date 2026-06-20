@@ -1,7 +1,7 @@
 import numpy as np
 from joblib import Parallel, delayed
 
-n_jobs = 20
+n_jobs = 10
 
 def epsilon_3D(kx,ky,kz,a,b):
     en = -0.5*(np.cos(kx)+a*np.cos(ky)+b*np.cos(kz))
@@ -36,7 +36,7 @@ def dos_single_E(Ei, epsilon, de):
 
 
 def dos_parallel(E_grid, epsilon, de, n_jobs=n_jobs):
-    rho = Parallel(n_jobs=n_jobs, backend="loky")(
+    rho = Parallel(n_jobs=n_jobs, backend="threading")(
         delayed(dos_single_E)(Ei, epsilon, de)
         for Ei in E_grid
     )
@@ -50,8 +50,8 @@ def dos_parallel(E_grid, epsilon, de, n_jobs=n_jobs):
 
 if __name__ == "__main__":
 
-    Ne = 400
-    de = 1e-3
+    Ne = 200
+    de = 1e-2
     kx = np.linspace(-np.pi,np.pi,Ne)
     ky = kx
     kz = kx
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             e = epsilon_3D(X,Y,Z,a,b).ravel()
             e_min = np.min(e)
             e_max = np.max(e)
-            E_grid = np.linspace(e_min, e_max, 250)
+            E_grid = np.linspace(e_min, e_max, 200)
 
             for de in de_values:
                 dos_values = dos_parallel(E_grid, e, de)
