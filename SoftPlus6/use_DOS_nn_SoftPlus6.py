@@ -72,8 +72,8 @@ E_grid = data["E_grid"]
 epsilon = data["e"]
 
 a = 1
-b = 1
-de = 0.0137
+b = 0
+de = 0.0037
 
 rho_nn = dos_from_nn(E_grid, de, a, b, model, X_mean, X_std)
 
