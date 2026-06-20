@@ -106,10 +106,9 @@ print("Device:", device)
 
 model = DOSNet().to(device)
 
-optimizer = torch.optim.AdamW(
+optimizer = torch.optim.Adam(
     model.parameters(),
-    lr=5e-4,
-    weight_decay=1e-4
+    lr=1e-3
 )
 loss_fn = nn.MSELoss()
 
