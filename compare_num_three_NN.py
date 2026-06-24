@@ -65,7 +65,7 @@ def load_model(model_path, activation, device):
 Ne = 800
 de = 0.002
 a = 1.0
-b = 0
+b = 1.0
 n_jobs = 10
 
 E_points = 1000
